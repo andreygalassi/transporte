@@ -9,7 +9,7 @@ import javax.ws.rs.core.MediaType;
 public class TesteServer {
 
 	@GET
-	@Produces(MediaType.TEXT_PLAIN )
+	@Produces(MediaType.TEXT_PLAIN+ ";charset=utf-8" )
 	@Path("/teste")
 	public String teste(){
 		System.out.println("teste");
