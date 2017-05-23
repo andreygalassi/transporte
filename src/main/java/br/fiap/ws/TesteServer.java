@@ -13,7 +13,7 @@ public class TesteServer {
 	@Path("/teste")
 	public String teste(){
 		System.out.println("teste");
-		return "O WebServer está em pé";
+		return "O WebServer está em pé 2";
 	}
 
 	@GET
