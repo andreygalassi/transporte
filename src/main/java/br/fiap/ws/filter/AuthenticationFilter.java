@@ -36,7 +36,7 @@ public class AuthenticationFilter implements javax.servlet.Filter {
 				if (response instanceof HttpServletResponse) {
 					// Cria um obj HttpServletResponse
 					HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-//					httpServletResponse.setCharacterEncoding("utf-8");
+					httpServletResponse.setCharacterEncoding("utf-8");
 					// Atribui o status 401 - nao autorizado
 					httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 					// Escreve a mensagem como retorno a quem chamou, envia e fecha
