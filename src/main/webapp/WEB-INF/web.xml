@@ -21,6 +21,15 @@
 		<servlet-name>jersey-serlvet</servlet-name>
 		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
+	
+	<filter>
+		<filter-name>AuthenticationFilter</filter-name>
+		<filter-class>br.fiap.ws.filter.AuthenticationFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>AuthenticationFilter</filter-name>
+		<url-pattern>/transportadora/*</url-pattern>
+	</filter-mapping>
          
 </web-app>
 
