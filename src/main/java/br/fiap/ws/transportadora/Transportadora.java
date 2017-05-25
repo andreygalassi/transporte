@@ -12,6 +12,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.rpc.ServiceException;
+import javax.xml.soap.SOAPException;
+
+import org.apache.axis.client.Stub;
+import org.apache.axis.message.SOAPHeaderElement;
 
 import br.com.governo.ws.Exception;
 import br.com.governo.ws.Governo;
@@ -53,7 +57,7 @@ public class Transportadora {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("calcularFrete")
-	public Response calcularFrete(CalcularFrete calcularFrete) throws ServiceException, Exception, RemoteException {
+	public Response calcularFrete(CalcularFrete calcularFrete) throws ServiceException, Exception, RemoteException, SOAPException {
 		
 		double valorTotalFrete = calculaFrete(calcularFrete);		
 		
@@ -67,7 +71,7 @@ public class Transportadora {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@Path("gerarFrete")
-	public Response cadastrarFrete(Frete frete) throws ServiceException, Exception, RemoteException {
+	public Response cadastrarFrete(Frete frete) throws ServiceException, Exception, RemoteException, SOAPException {
 		
 		// TODO - vari�vel somente para depurar e separar da l�gica ok dos outros grupos, remover.
 		boolean gerarFreteNormalmente = true;
@@ -113,7 +117,15 @@ public class Transportadora {
 		return Response.status(200).entity(retorno).build();
 	}
 	
-	private double calculaFrete(CalcularFrete calcularFrete) throws ServiceException, Exception, RemoteException {
+	public static void main(String args[]) throws Exception, RemoteException, ServiceException, SOAPException
+	{
+		CalcularFrete calcularFrete = new CalcularFrete();
+		calcularFrete.setQuantidadeProdutos(1);
+		calcularFrete.setValorTotalRemessa(10);
+		new Transportadora().calculaFrete(calcularFrete);
+	}
+	
+	private double calculaFrete(CalcularFrete calcularFrete) throws ServiceException, Exception, RemoteException, SOAPException {
 		double freteCalculado = 0.0;
 
 		if (calcularFrete != null) {
@@ -121,6 +133,15 @@ public class Transportadora {
 			freteCalculado = freteCalculado + calcularFrete.getValorTotalRemessa() * ALIQUOTA_SEGURO;
 
 			Governo port = new GovernoServiceLocator().getGovernoPort();
+			
+			SOAPHeaderElement authentication = new SOAPHeaderElement("http://ws.governo.com.br/","Authentication");
+			SOAPHeaderElement user = new SOAPHeaderElement("http://ws.governo.com.br/","documento", "11111111111");
+			SOAPHeaderElement password = new SOAPHeaderElement("http://ws.governo.com.br/","senha", "1234");
+			
+			authentication.addChild(user);
+			authentication.addChild(password);
+			
+			((Stub)port).setHeader(authentication);
 
 			Imposto[] impostos = port.listarImpostos();
 
