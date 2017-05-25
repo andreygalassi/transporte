@@ -1,5 +1,6 @@
 package br.fiap.ws.transportadora;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.rpc.ServiceException;
+
+import br.com.governo.ws.Exception;
+import br.com.governo.ws.Governo;
+import br.com.governo.ws.GovernoServiceLocator;
+import br.com.governo.ws.Imposto;
 
 @Path("/")
 public class Transportadora {
@@ -46,7 +53,7 @@ public class Transportadora {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("calcularFrete")
-	public Response calcularFrete(CalcularFrete calcularFrete) {
+	public Response calcularFrete(CalcularFrete calcularFrete) throws ServiceException, Exception, RemoteException {
 		
 		double valorTotalFrete = calculaFrete(calcularFrete);		
 		
@@ -60,7 +67,7 @@ public class Transportadora {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@Path("gerarFrete")
-	public Response cadastrarFrete(Frete frete) {
+	public Response cadastrarFrete(Frete frete) throws ServiceException, Exception, RemoteException {
 		
 		// TODO - vari�vel somente para depurar e separar da l�gica ok dos outros grupos, remover.
 		boolean gerarFreteNormalmente = true;
@@ -106,20 +113,24 @@ public class Transportadora {
 		return Response.status(200).entity(retorno).build();
 	}
 	
-	private double calculaFrete(CalcularFrete calcularFrete)
-	{
+	private double calculaFrete(CalcularFrete calcularFrete) throws ServiceException, Exception, RemoteException {
 		double freteCalculado = 0.0;
-		
-		if( calcularFrete != null )
-		{
+
+		if (calcularFrete != null) {
 			freteCalculado = calcularFrete.getQuantidadeProdutos() * VALOR_FRETE_POR_PRODUTO;
 			freteCalculado = freteCalculado + calcularFrete.getValorTotalRemessa() * ALIQUOTA_SEGURO;
-			
-			// TODO (??)
-			// double totalImpostos = governo.getTotalImpostos(QuantidadeProdutos, ValorTotalRemessa);
-			// freteCalculado = freteCalculado + totalImpostos;
+
+			Governo port = new GovernoServiceLocator().getGovernoPort();
+
+			Imposto[] impostos = port.listarImpostos();
+
+			Double totalImpostos = 0d;
+			for (Imposto imposto : impostos) {
+				totalImpostos += imposto.getAliquota();
+			}
+			freteCalculado = freteCalculado + totalImpostos;
 		}
-		
+
 		return freteCalculado;
 	}
 	
