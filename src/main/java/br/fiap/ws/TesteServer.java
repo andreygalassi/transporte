@@ -1,11 +1,16 @@
 package br.fiap.ws;
 
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-@Path("/")
+@Deprecated
+@Path("/teste")
 public class TesteServer {
 
 	@GET
@@ -22,4 +27,16 @@ public class TesteServer {
 	public String testeJson(){
 		return new String("teste");
 	}
+	
+//	@GET
+//	@Produces(MediaType.TEXT_HTML+ ";charset=utf-8" )
+//	@Path("/")
+//	public void teste2(@Context HttpServletResponse servletResponse){
+//        try {
+//			servletResponse.sendRedirect("pagina/index.html");
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
 }

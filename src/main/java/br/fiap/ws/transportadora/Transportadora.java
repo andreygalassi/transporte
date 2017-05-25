@@ -11,7 +11,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/transportadora")
+@Path("/")
 public class Transportadora {
 
 	static List<Remessa> remessas = new ArrayList<Remessa>();

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Transportadora</title>
+		<meta charset="utf-8">
+		<link rel="icon" href="img/transportadora.png">
+        <link rel="stylesheet" href="css/reset.css">
+		<link rel="stylesheet" href="css/site.css">
+		<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Crimson+Text:400,400italic,600">
+		<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans+Condensed:700">
+	</head>
+	<body>
+        <main>          
+            <h1 class="titulo-principal">Grupo 4 - Transportadora</h1>
+            <div class="container">
+                <ul class="passos">
+                    <p><strong>Listar Remessas:</strong> este método só pode ser acessado por administradores e retorna um Json de remessas já gravadas.</p>                
+                    <li>
+                        <a href="http://transporte-agrego1.rhcloud.com/transportadora/listarRemessas">
+                            <figure>
+                                <img src="img/listar_remessas.png" alt="Listar Remessas">
+                            </figure>
+                        </a>
+                    </li>
+                    <p><strong>Calcular Frete:</strong> este método só pode ser acessado por Clientes e recebe o número de produtos e o valor total da remessa. Calcule e retorne o valor do frete sabendo que ele é composto por R$ 25 por produto e mais 1% do valor da remessa de seguro. Além disso deve ser incluído o valor total dos impostos obtido do grupo Governo.</p>
+                    <li>
+                        <a href="http://transporte-agrego1.rhcloud.com/transportadora/calcularFrete">
+                            <figure>
+                                <img src="img/calcular_frete.png" alt="Calcular Frete">
+                            </figure>
+                        </a>
+                    </li>
+                     <p><strong>Gerar Frete:</strong> Este método só pode ser acessado por Clientes. Este método deve receber o CPF/CNPJ do destinatário, o CPF/CNPJ do remetente, a quantidade de produtos e o valor total da remessa. O método deve armazenar o frete caso o grupo financeira aprove o débito do valor do frete do CNPJ/CPF do remetente e a nota fiscal possa ser emitida pelo grupo Governo.</p>
+                    <li>
+                        <a href="http://transporte-agrego1.rhcloud.com/transportadora/gerarFrete">
+                            <figure>
+                                <img src="img/gerarFrete.png" alt="Gerar Frete">
+                            </figure>
+                        </a>
+                    </li>
+                    <p><strong>Listar Remessas após gerar frete:</strong> 
+                    <li>
+                        <a href="http://transporte-agrego1.rhcloud.com/transportadora/listarRemessas">
+                            <figure>
+                                <img src="img/listar_remessas_resultado.png" alt="Listar Remessas após gerar frete">
+                            </figure>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </main>
+        <aside class="navegacao-site">
+			<h1>Representantes</h1>
+			<nav>
+				<ul>
+                    <li><h3>Andrey Galassi Marques Rego, <strong><br>RM31680</strong></h3></li>
+					<li><h3>Douglas Pimentel Teixeira, <strong><br>RM31635</strong></h3></li>
+					<li><h3>Ednir Bernardino de Oliveira Araujo, <strong><br>RM31385</strong></h3></li>
+					<li><h3>Igor Neves de Oliveira, <strong><br>RM31525</strong></h3></li>
+					<li><h3>Mateus Contino Neubauer, <strong><br>RM31252</strong></h3></li>
+                    <li><h3>Paulo Victor Nascimento Luz, <strong><br>RM31331</strong></h3></li>
+                    <li><h3>Ricardo Cassettari Junior, <strong><br>RM 31451</strong></h3></li>
+				</ul>
+                <ul class="icones-redes-sociais">
+                    <li>
+                        <a href="https://github.com/andreygalassi/transporte" class="github">
+                            Github
+                        </a>
+                    </li>
+			     </ul>
+			</nav>
+			
+		</aside>
+        <footer class="clearfix">
+            &copy; Transportadora 2017
+        </footer>
+        
+	</body>
+</html>

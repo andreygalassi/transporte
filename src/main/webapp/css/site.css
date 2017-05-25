@@ -1,0 +1,148 @@
+body {
+	font-family: "Crimson Text", "Times New Roman", serif;
+	font-size: 120%;
+    line-height: 1.3;
+}
+
+h1, h2 {
+	font-family: "Open Sans Condensed", "Arial", sans-serif;
+}
+
+.titulo-principal {
+    text-align: center;
+	background-color: #851944;
+    border-bottom: 5px solid black;
+	color: #FFF;
+    padding: 25px;
+    font-size: 35px;
+    text-transform: uppercase;
+}
+
+main div {
+    width: 720px;
+    margin: auto;
+    padding: 30px 0;
+}
+
+main a {
+	color: #851944;
+}
+
+p {
+	margin: 20px 0;
+}
+
+.navegacao-site, footer {
+    padding: 20px;
+}
+
+footer {
+    background-color: #000;
+    color: #F2FFFC;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+main a {
+    color: #851944;
+}
+
+main {
+	float: left;
+	width: 80%;
+	padding-bottom: 80px;
+}
+
+.passos li {
+	display: inline-block;
+	background-color: #FAFFFC;
+	width: 100%;
+	box-sizing: border-box;
+	padding: 16px;
+	margin-right: 16px;
+	margin-bottom: 16px;
+}
+
+.passos img {
+	width: 100%;
+}
+
+.navegacao-site {
+	text-align: center;
+	background-color: #3C1D3D;
+	color: #F2FFFC;
+}
+
+.navegacao-site {
+	float: right;
+	box-sizing: border-box;
+	border-left: 5px solid black;
+	border-bottom: 5px solid black;
+}
+
+.navegacao-site {
+	width: 20%;
+	position: relative;
+    right: 0;
+}
+
+.navegacao-site h1 {
+	font-size: 25px;
+	margin-bottom: 25px;
+}
+
+.navegacao-site h3 {
+	font-size: 13px;
+	margin-bottom: 25px;
+}
+
+.navegacao-site a {
+	color: inherit;
+	font-family: "Open Sans Condensed", sans-serif;
+}
+
+.navegacao-site p {
+	margin: 20px 0;
+}
+
+icones-redes-sociais li {
+	display: inline-block;
+}
+
+nav a {
+	text-transform: lowercase;
+}
+
+.icones-redes-sociais a {
+	width: 40px;
+	height: 40px;
+	display: block;  
+	text-indent: -99999px;
+    margin-left: 40%;
+}
+
+
+.github {
+	background-image: url(../img/github.png);
+}
+
+
+strong {
+    font-weight: bold;
+}
+
+em {
+    font-style: italic;
+}
+
+h2 {
+    font-size: 30px;
+    clear: left;
+}
+
+.clearfix {
+    clear: both;
+}
