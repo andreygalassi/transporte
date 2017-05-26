@@ -1,8 +1,15 @@
 package br.fiap.ws.transportadora;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -13,10 +20,15 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.rpc.ServiceException;
 import javax.xml.soap.SOAPException;
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.handler.MessageContext;
 
 import org.apache.axis.client.Stub;
 import org.apache.axis.message.SOAPHeaderElement;
 
+import br.com.fiap.ws.financeiro.cobrar.client.Cobranca;
+import br.com.fiap.ws.financeiro.cobrar.client.CobrarCliente;
+import br.com.fiap.ws.financeiro.cobrar.client.CobrarClienteService;
 import br.com.governo.ws.Exception;
 import br.com.governo.ws.Governo;
 import br.com.governo.ws.GovernoServiceLocator;
@@ -71,50 +83,151 @@ public class Transportadora {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@Path("gerarFrete")
-	public Response cadastrarFrete(Frete frete) throws ServiceException, Exception, RemoteException, SOAPException {
+	public Response cadastrarFrete(Frete frete) {
 		
-		// TODO - vari�vel somente para depurar e separar da l�gica ok dos outros grupos, remover.
-		boolean gerarFreteNormalmente = true;
-		
+		boolean gerarFreteNormalmente = false;
 		Retorno retorno = new Retorno();
 		retorno.setMensagem("Geração de frete em curso...");
 		
-		if( frete != null )
+		try
 		{
-			CalcularFrete calcularFrete = new CalcularFrete();
-			calcularFrete.setQuantidadeProdutos(frete.getQuantidadeProdutos());
-			calcularFrete.setValorTotalRemessa(frete.getValorTotalRemessa());
 		
-			double valorTotalFrete = calculaFrete(calcularFrete);
-		
-			// TODO ( ?? )
-			//
-			// if ( financeira.isDebtApproved( cpfCnpjRemetente, valorTotalFrete ) )  
-			// { 
-			//   if ( governo.isNotaFiscalEmitida(cpfCnpjRemetente, cpfCnpjDestinatario, valorProdutos, quantidadeProdutos, valorTotalFrete) ) 
-			//   {
-			//      gerarFreteNormalmente = true;
-			//	 }
-			//   else
-			//      retorno.setMensagem("Nota fiscal n�o emitida.");
-			// }
-			// else
-			//    retorno.setMensagem("D�bito n�o aprovado.");
-			//		
-			
-			if( gerarFreteNormalmente )
+			if( frete != null )
 			{
-				Remessa remessa = new Remessa();
-				remessa.setCpfCnpjDestinatario(frete.getCpfCnpjDestinatario());
-				remessa.setCpfCnpjRemetente(frete.getCpfCnpjRemetente());
-				remessa.setValorFrete(valorTotalFrete);
-				remessas.add(remessa);
+				CalcularFrete calcularFrete = new CalcularFrete();
+				calcularFrete.setQuantidadeProdutos(frete.getQuantidadeProdutos());
+				calcularFrete.setValorTotalRemessa(frete.getValorTotalRemessa());
 			
-				retorno.setMensagem("Frete gerado com sucesso.");
+				double valorTotalFrete = calculaFrete(calcularFrete);
+			
+				// Tenta cobrar do cliente de cpfCnpj o valor total do frete na financeira.
+				if (cobrarCliente( frete.getCpfCnpjDestinatario(), valorTotalFrete ) )
+					gerarFreteNormalmente = true;
+				else
+				{
+					gerarFreteNormalmente = false;
+					retorno.setMensagem("Débito não aprovado.");
+				}
+					
+				// TODO
+				// { 
+				//   if ( governo.isNotaFiscalEmitida(cpfCnpjRemetente, cpfCnpjDestinatario, valorProdutos, quantidadeProdutos, valorTotalFrete) ) 
+				//   {
+				//      gerarFreteNormalmente = true;
+				//	 }
+				//   else
+				//      retorno.setMensagem("Nota fiscal n�o emitida.");
+				// }
+				// else
+				//    retorno.setMensagem("D�bito n�o aprovado.");
+				//		
+				
+				if( gerarFreteNormalmente )
+				{
+					Remessa remessa = new Remessa();
+					remessa.setCpfCnpjDestinatario(frete.getCpfCnpjDestinatario());
+					remessa.setCpfCnpjRemetente(frete.getCpfCnpjRemetente());
+					remessa.setValorFrete(valorTotalFrete);
+					remessas.add(remessa);
+				
+					retorno.setMensagem("Frete gerado com sucesso.");
+				}
 			}
-		}	
-			
+		
+		}
+		catch(RemoteException ex)
+		{
+			retorno.setMensagem("Erro durante a geração do frete :" + ex.getMessage());
+			return Response.status(500).entity(retorno).build();
+		}
+		catch(ServiceException ex)
+		{
+			retorno.setMensagem("Erro durante a geração do frete :" + ex.getMessage());
+			return Response.status(500).entity(retorno).build();
+		}
+		catch(SOAPException ex)
+		{
+			retorno.setMensagem("Erro durante a geração do frete :" + ex.getMessage());
+			return Response.status(500).entity(retorno).build();
+		}
+		
 		return Response.status(200).entity(retorno).build();
+	}
+	
+	private boolean cobrarCliente( String cpfCnpj, double valor ) throws Exception
+	{
+        URL url = null;
+        boolean retorno = false;
+        long cpfCnpjL = 0;
+        
+		try {
+			
+			cpfCnpjL = converterNumeroInStringToLong(cpfCnpj);
+			
+			if( cpfCnpjL == -1 )
+				throw new Exception("Erro de conversão de String para long");
+			
+			Properties propriedades = getPropriedades();
+			
+			String enderecoEndPointServico = propriedades.getProperty("enderecoEndPointServico");
+			String enderecoWsdlServico = propriedades.getProperty("enderecoWsdlServico");
+			String cargoAuthHeaderKey = propriedades.getProperty("cargoAuthHeaderKey");
+			String authHeaderValue = propriedades.getProperty("authHeaderValue");
+			
+			url = new URL(enderecoWsdlServico);
+			
+	        CobrarCliente port = new CobrarClienteService(url).getCobrarClientePort();
+			
+			BindingProvider bindingProvider = (BindingProvider) port;
+			bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, enderecoEndPointServico);
+			
+			Map<String,Object> req_ctx = bindingProvider.getRequestContext();
+			Map<String,List<String>> headers = new HashMap<String,List<String>>();
+			headers.put(cargoAuthHeaderKey, Collections.singletonList(authHeaderValue));
+			req_ctx.put(MessageContext.HTTP_REQUEST_HEADERS, headers);
+			
+			Cobranca cobranca = new Cobranca();
+	        cobranca.setCpf(cpfCnpjL);
+	        cobranca.setValor(valor);
+	        
+	        retorno = port.cobrar(cobranca);
+
+	        System.out.println("Resultado:" + retorno);
+			
+		} catch (Exception e ) {
+			throw e;
+		}
+	    catch (IOException e ) {
+			throw new Exception(e.getMessage());
+	    }
+		
+		
+		return retorno;
+	}
+	
+	private long converterNumeroInStringToLong(String cpfCnpj)
+	{
+		long retorno = -1;
+		
+		String digitos = "";
+	    char[] letras  = cpfCnpj.toCharArray();
+	    for (char letra : letras) {
+	        if(Character.isDigit(letra)) {
+	            digitos += letra;
+	        }
+	    }
+	    
+	    retorno = Long.parseLong(digitos);
+	    
+		return retorno;
+	}
+	
+	private Properties getPropriedades() throws IOException {
+		Properties propers = new Properties();
+		FileInputStream file = new FileInputStream(
+				"./config/config.properties");
+		propers.load(file);
+		return propers;
 	}
 	
 	public static void main(String args[]) throws Exception, RemoteException, ServiceException, SOAPException
